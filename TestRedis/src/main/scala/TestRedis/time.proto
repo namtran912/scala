@@ -1,0 +1,8 @@
+package TestRedis;
+
+option java_package = "TestRedis";
+option java_outer_classname = "TimeProto";
+
+message Time {
+    repeated int64 time = 1;
+}
