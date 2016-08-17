@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="TestRedis:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/TestRedis_jar</output-path>
+    <root id="archive" name="TestRedis.jar">
+      <element id="module-output" name="TestRedis" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/commons/commons-pool2/2.0/commons-pool2-2.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/protobuf/protobuf-java/2.6.1/protobuf-java-2.6.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/redis/clients/jedis/2.4.2/jedis-2.4.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.11.8/scala-library-2.11.8.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
