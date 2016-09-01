@@ -1,0 +1,105 @@
+	#!/bin/sh
+
+#Repository=$(echo $2 | rev | cut -d '/' -f 1  | rev)
+
+
+case "$1" in
+   clone)
+	# Clone
+	Repository=$3
+
+       	git clone $2 $Repository
+       	echo 'Clone success!'
+       	;;
+   backup)
+       	# Backup
+	
+	flag=0
+	while IFS='' read -r line || [[ -n "$line" ]]; 
+	do
+		if [ ${line:0:1} == "+" ] && [ $flag == 1 ]
+		then 
+			break
+		fi
+
+		if [[ $flag == 1 ]]
+		then
+			case "${line:0:1}" in
+   			A)
+				# Delete file
+				rm -rf $2/${line:2}
+       				;;
+			D)
+				# Revert file
+				f=$(echo ${line:2} | cut -d '/' -f 1)
+				yes | cp -r $3/$f $2
+				;;
+			M)	
+				# Modify file
+				f=$(echo ${line:2} | cut -d '/' -f 1)
+				yes | cp -r $3/$f $2
+				;;
+			esac
+
+		fi
+
+    		if [[ ${line:1} == $3 ]]
+		then
+			((flag++))
+			 
+		fi
+	done < backup
+
+       	echo 'Backup success!'
+       	;;
+   sync)
+	Repository=$3
+
+	git remote add $Repository $2
+	git fetch $Repository
+	cFile=$(git whatchanged -1 --format=oneline | wc -l)
+	res=". $(git diff --name-only master $Repository/master)"
+	dt=$(date '+%d_%m_%Y')
+
+	bk="../$dt"
+	mkdir $bk
+
+	for (( i=2; ;i++))
+	do
+		bkFile=$bk
+		file=$(echo $res | cut -d ' ' -f $i)
+
+		if [[ -z "${file// }" ]]
+		then
+			break
+		fi
+
+		if [[ $file == "." ]]
+		then
+			break
+		fi
+	
+		for (( j=2, jj=3; ;j++, jj++))
+		do
+			check=$(echo "/$file" | cut -d '/' -f $jj)
+			if [[ -z "${check// }" ]]
+			then
+				break
+			fi
+
+			dir=$(echo "/$file" | cut -d '/' -f $j)
+			bkFile="$bkFile/$dir"
+			mkdir $bkFile
+		done
+ 
+		cp -p $file $bkFile 
+	done
+	
+	echo +$dt >> ../backup
+	echo "$(git diff --name-status master $Repository/master)" >> ../backup
+
+	git merge master $Repository/master
+	
+	echo 'Sync success!'	
+       	;;
+esac
