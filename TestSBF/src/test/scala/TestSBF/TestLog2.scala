@@ -1,6 +1,6 @@
 package TestSBF
 
-import java.io.{BufferedReader, BufferedWriter, FileReader, FileWriter}
+import java.io._
 import java.util.Calendar
 
 import org.junit.Test
@@ -13,25 +13,29 @@ import scala.collection.mutable.ArrayBuffer
 class TestLog2 {
     @Test
     def test(): Unit = {
-        val begin = Calendar.getInstance.getTimeInMillis
-        val sbf = new ScalableCountingBloomFilter(1000000, 0.05)
+        val sbf = new ScalableCountingBloomFilter(10000000, 0.001)
         val reader = new BufferedReader(new FileReader("C:\\Users\\CPU11179-local\\Desktop\\server_58728080_2016_08_27_09.log"))
         val writer = new BufferedWriter(new FileWriter("C:\\Users\\CPU11179-local\\Desktop\\result.log"))
 
-        var line: String = null
-        var i = 0
+        var line: String = ""
+        var i: Long = 0
         var result: Map[(String, Int), Int] = Map()
 
-        try {
-            while ((line = reader.readLine) != null) {
-                val info = line split(",")
+        /*val lnr: LineNumberReader = new LineNumberReader(new FileReader(new File("C:\\Users\\CPU11179-local\\Desktop\\server_58728080_2016_08_27_09.log")))
+        lnr.skip(Long.MaxValue)
+        println(lnr.getLineNumber)*/
+
+        while (line != null) {
+            try {
+                line = reader.readLine
+                val info = line split (",")
 
                 info(12) match {
                     case "impression" => {
                         val key = (info(9) + info(11)).getBytes
                         sbf.add(key)
                         if (sbf.count(key) > 20)
-                          sbf.remove(key)
+                            sbf.remove(key)
                     }
                     case "click" => {
                         val key = (info(9) + info(11)).getBytes
@@ -49,12 +53,11 @@ class TestLog2 {
                 i += 1
                 if (i % 1000000 == 0)
                     println(i + " " + sbf.getSize)
-
             }
-        }
-        catch {
-            case ex: Exception => {
-                println(line)
+            catch {
+                case ex: Exception => {
+                    println(i + " " + ex + " " + line)
+                }
             }
         }
         reader.close()
@@ -63,8 +66,5 @@ class TestLog2 {
             writer.write(s"${key._1}\t${key._2} \t${result(key)}" + "\n")
 
         writer.close()
-
-        val end = Calendar.getInstance.getTimeInMillis
-        println(end - begin)
     }
 }
